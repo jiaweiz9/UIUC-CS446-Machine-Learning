@@ -27,10 +27,56 @@ Homework is due Tuesday, February 20, 2024 at 23:59pm Central Time.
 Please refer to \url{https://courses.grainger.illinois.edu/cs446/sp2024/homework/hw/index.html} for course policy on homeworks and submission instructions.
 
 \section{Soft-margin SVM: 4pts}
-
+The Lagrangian form of the soft-margin SVM is given by
+\begin{eqnarray}
+    L(\omega, b, \xi, \alpha, \beta) &=& \frac{1}{2}||\omega||^2 + C\sum_{i=1}^n \xi_i - \sum_{i=1}^n \alpha_i[y_i(\omega^Tx_i + b) - 1 + \xi_i] - \sum_{i=1}^n \beta_i\xi_i \nonumber
+\end{eqnarray}
+The dual form of the problem is then given by
+\begin{eqnarray}
+    D(\alpha, \beta) = \min_{\omega, b, \xi} L(\omega, b, \xi, \alpha, \beta) \nonumber
+\end{eqnarray}
+Because the problem is convex, we know that the maximum of the dual is the minimum of the primal. The solution to the dual occurs when the gradients of the Lagrangian are 0, i.e.
+\begin{eqnarray}
+    \nabla_{\omega}L(\omega, b, \xi, \alpha, \beta) &=& \omega - \sum_{i=1}^n \alpha_iy_ix_i = 0 \nonumber \\
+    \nabla_{b}L(\omega, b, \xi, \alpha, \beta) &=& -\sum_{i=1}^n \alpha_iy_i = 0 \nonumber \\
+    \nabla_{\xi}L(\omega, b, \xi, \alpha, \beta) &=& C - \alpha_i - \beta_i = 0 \nonumber
+\end{eqnarray}
+Substitue these back into the Lagrangian, we have
+\begin{eqnarray}
+    D(\alpha, \beta) &=& \frac{1}{2}||\sum_{i=1}^n \alpha_iy_ix_i||^2 + C\sum_{i=1}^n \xi_i - \sum_{i=1}^n \alpha_i[y_i(\sum_{j=1}^n \alpha_jy_jx_j^Tx_i + b) - 1 + \xi_i] - \sum_{i=1}^n \beta_i\xi_i \nonumber
+    \\ &=& \sum_{i=1}^n \alpha_i - \frac{1}{2}\sum_{i=1}^n\sum_{j=1}^n\alpha_i\alpha_jy_iy_jx_i^Tx_j \nonumber 
+\end{eqnarray}
+subject to
+\begin{eqnarray}
+    \alpha_i &\geq& 0 \nonumber \\
+    \beta_i &\geq& 0 \nonumber \\
+    \alpha_i + \beta_i &=& C \nonumber \\
+    \sum_{i=1}^n \alpha_iy_i &=& 0 \nonumber
+\end{eqnarray}
 \newpage
 
 \section{SVM, RBF Kernel and Nearest Neighbor: 6pts}
+\subsection{}
+\begin{eqnarray}
+    \hat{\omega} &=& \sum_{i=1}^N \hat{\alpha}_iy_ix_i \nonumber\\
+    f(x) &=& (\sum_{i=1}^N \hat{\alpha}_iy_ix_i)^T x \nonumber
+\end{eqnarray}
+
+\subsection{}
+\begin{eqnarray}
+    \hat{\omega} &=& \sum_{i=1}^N \hat{\alpha}_iy_i\phi(x_i) \nonumber \\
+    f(x) &=& (\sum_{i=1}^N \hat{\alpha}_iy_i\phi(x_i))^T \phi(x) \nonumber \\ 
+        &=& \sum_{i=1}^N \hat{\alpha}_iy_iK(x_i, x) \nonumber
+\end{eqnarray}
+
+\subsection{}
+\begin{eqnarray}
+    \lim_{\delta \to 0} \frac{\sum_{i=1}^{N}{\hat{\alpha}y_ie^{-\frac{||x_i-x||^{2}}{2\delta^{2}}}}}{e^{-\frac{\rho ^2}{2\delta^{2}}}}
+    &=& \lim_{\delta \to 0} \sum_{i=1}^{S}{\hat{\alpha}y_ie^{-\frac{||x_i-x||^{2} - \rho ^2}{2\delta^{2}}}} \nonumber \\
+    &=& \lim_{\delta \to 0} \sum_{i=1}^{T}{\hat{\alpha}y_ie^{-\frac{||x_i - x||^{2} - \rho^2}{2\delta^2}}} 
+    +  \lim_{\delta \to 0} \sum_{i=1}^{S/T}{\hat{\alpha}y_ie^{-\frac{||x_i - x||^{2} - \rho^2}{2\delta^2}}} \nonumber \\
+    &=& \sum_{i=1}^{T}{\hat{\alpha}y_i + 0} \nonumber 
+\end{eqnarray}
 
 \newpage
 

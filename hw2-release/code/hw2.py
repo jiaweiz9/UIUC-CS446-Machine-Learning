@@ -34,7 +34,27 @@ def svm_solver(x_train, y_train, lr, num_iters,
     You will then need to use alpha.requires_grad_().
     Alternatively, use in-place operations such as clamp_().
     '''
-    pass
+    # x_train= torch.cat((torch.ones((x_train.shape[0], 1)), x_train), axis=1)
+    kernel_matrix = torch.zeros(x_train.size(0), x_train.size(0))
+    for i in range(x_train.size(0)):
+        for j in range(x_train.size(0)):
+            kernel_matrix[i, j] = kernel(x_train[i], x_train[j]) * y_train[i] * y_train[j]
+
+    alpha = torch.zeros(x_train.size(0), requires_grad=True)
+    print(alpha)
+    optimizer = optim.SGD([alpha], lr=lr)
+    
+    for i in range(num_iters):
+        mini_problem = -torch.sum(alpha) + 0.5 * alpha.T @ kernel_matrix @ alpha
+        # print(mini_problem)
+        mini_problem.backward()
+        optimizer.step()
+        # print(alpha.grad)
+        alpha.data = alpha.data.clamp(min=0, max=c)
+        optimizer.zero_grad()
+    
+    return alpha.detach()
+
 
 def svm_predictor(alpha, x_train, y_train, x_test,
                   kernel=hw2_utils.poly(degree=1)):
@@ -53,5 +73,22 @@ def svm_predictor(alpha, x_train, y_train, x_test,
     Return:
         A 1d tensor with shape (m,), the outputs of SVM on the test set.
     '''
-    pass
+    # x_train= torch.cat((torch.ones((x_train.shape[0], 1)), x_train), axis=1)
+    # x_test= torch.cat((torch.ones((x_test.shape[0], 1)), x_test), axis=1)
+    predict = torch.zeros(x_test.size(0))
+    for j in range(x_test.size(0)):
+        for i in range(x_train.size(0)):
+            predict[j] = alpha[i] * y_train[i] * kernel(x_train[i], x_test[j])
+    result = torch.sign(predict)
+    result[result == 0] = 1
+    return result
 
+if __name__ == '__main__':
+    x, y = hw2_utils.xor_data()
+    alpha = svm_solver(x, y, lr=0.01, num_iters=1000, c=None)
+    print(alpha)
+    print(svm_predictor(alpha, x, y, x))
+
+    # hw2_utils.svm_contour(lambda x_test: svm_predictor(alpha, x, y, x_test))
+    # print('The accuracy of the SVM is: ', torch.mean((svm_predictor(alpha, x, y, x) == y).float()).item())
+    # plt.show()
