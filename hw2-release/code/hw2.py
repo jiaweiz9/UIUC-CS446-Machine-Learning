@@ -45,12 +45,12 @@ def svm_solver(x_train, y_train, lr, num_iters,
     optimizer = optim.SGD([alpha], lr=lr)
     
     for i in range(num_iters):
-        mini_problem = -torch.sum(alpha) + 0.5 * alpha.T @ kernel_matrix @ alpha
-        # print(mini_problem)
+        mini_problem = -torch.sum(alpha) + 0.5 * alpha @ kernel_matrix @ alpha
         mini_problem.backward()
         optimizer.step()
-        # print(alpha.grad)
-        alpha.data = alpha.data.clamp(min=0, max=c)
+        with torch.no_grad():
+            alpha.clamp_(min=0, max=c)
+        alpha.requires_grad_()
         optimizer.zero_grad()
     
     return alpha.detach()
@@ -78,17 +78,15 @@ def svm_predictor(alpha, x_train, y_train, x_test,
     predict = torch.zeros(x_test.size(0))
     for j in range(x_test.size(0)):
         for i in range(x_train.size(0)):
-            predict[j] = alpha[i] * y_train[i] * kernel(x_train[i], x_test[j])
-    result = torch.sign(predict)
-    result[result == 0] = 1
-    return result
+            predict[j] += alpha[i] * y_train[i] * kernel(x_train[i], x_test[j])
+    return predict
 
 if __name__ == '__main__':
     x, y = hw2_utils.xor_data()
-    alpha = svm_solver(x, y, lr=0.01, num_iters=1000, c=None)
-    print(alpha)
-    print(svm_predictor(alpha, x, y, x))
+    alpha = svm_solver(x, y, lr=0.01, num_iters=1000, kernel=hw2_utils.rbf(sigma=4))
+    # print(alpha)
+    # print(svm_predictor(alpha, x, y, x))
 
-    # hw2_utils.svm_contour(lambda x_test: svm_predictor(alpha, x, y, x_test))
+    hw2_utils.svm_contour(lambda x_test: svm_predictor(alpha, x, y, x_test, kernel=hw2_utils.rbf(sigma=4)))
     # print('The accuracy of the SVM is: ', torch.mean((svm_predictor(alpha, x, y, x) == y).float()).item())
     # plt.show()

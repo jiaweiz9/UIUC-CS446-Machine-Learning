@@ -81,10 +81,101 @@ subject to
 \newpage
 
 \section{Decision Tree and Adaboost: 12 pts}
+\subsection{}
+From the definition of entropy, we have
+\begin{eqnarray}
+    I(D) &=& -\sum_{c=1}^C p(c|D)\log_2p(c|D) \nonumber \\
+    &=& -\frac{1}{2}\log_2\frac{1}{2} - \frac{1}{2}\log_2\frac{1}{2} \nonumber \\
+    &=& 1 \nonumber
+\end{eqnarray}
 
+\subsection{}
+First consider split on $x_1$. Split points between two adjacent points can be considered as same, so we have possible split points at $\tau = 1.5, 2.5, 3.5, 4.5, 5.5$. 
+For each $\tau$, we split the dataset following the rule $y = 1$ if $x \ge \tau$, otherwise $y = -1$.
+\begin{eqnarray}
+    I(D|f_{\tau=1.5}) = 0.809, I(D|f_{\tau=2.5}) = 1, I(D|f_{\tau=3.5}) = 0.918, I(D|f_{\tau=4.5}) = 0.541, I(D|f_{\tau=5.5}) = 0.809 \nonumber
+\end{eqnarray}
+So the best split for $x_1$ is at $\tau = 4.5$.
+
+Similarly, we have possible split points at $\tau = 1.5, 2.5, 3.5, 4.5, 5.5$ for $x_2$, following the rule $y = -1$ if $x \ge \tau$, otherwise $y = 1$.
+\begin{eqnarray}
+    I(D|f_{\tau=1.5}) = 0.809, I(D|f_{\tau=2.5}) = 1, I(D|f_{\tau=3.5}) = 0.918, I(D|f_{\tau=4.5}) = 1, I(D|f_{\tau=5.5}) = 0.809 \nonumber
+\end{eqnarray}
+So the best split for $x_2$ is at $\tau = 1.5$ and $\tau = 5.5$. Since the information gain split on $x_1$ is higher, we choose to split on $x_1$ at $\tau = 4.5$.
+\begin{eqnarray}
+    IG(D, f) = I(D) - I(D|f) = 0.459 \nonumber
+\end{eqnarray}
+
+\subsection{}
+After split on $\tau = 4.5$, from the figure we can know that only split on $x_2$ at $\tau = 1.5$ can further reduce the entropy. So the best split for the second level is at $\tau = 1.5$, following the rule $y = -1$ if $x \ge \tau$, otherwise $y = 1$.
+\begin{eqnarray}
+    I(D|f_{x_1=4.5, x_2=1.5}) &=& \frac{1}{6}0 + \frac{1}{2}0 + \frac{1}{3}0 = 0 \nonumber\\
+    IG(D, f) &=& I(D) - I(D|f) = 1 - 0 = 1 \nonumber \\
+\end{eqnarray}
+
+\subsection{}
+Follow the adaboost routine, at $t = 1$, we have,
+\begin{eqnarray}
+    \gamma_1^{i} &=& \frac{1}{6} \nonumber \\
+    f_1(x) &=& \begin{cases}
+        1, & x_1 \ge 4.5 \\
+        -1, & x_1 < 4.5
+        \end{cases} \nonumber \\
+    z_1 &=& \sum_{i = 1}^{6} \frac{1}{6} y^{i} f_1(x_i) = \frac{5}{6} \nonumber \\
+    \alpha_1 &=& \frac{1}{2}\ln\frac{1 + z_1}{1 - z_1} = \frac{1}{2}\ln 11 \nonumber \\
+    \gamma_2^2 &=& \frac{1}{6 Z _1}e^{-\frac{1}{2}\ln 11 -1} \nonumber \\
+    \gamma_2^i &=& \frac{1}{6 Z _1}e^{-\frac{1}{2}\ln 11 }, i \ne 2 \nonumber \\
+\end{eqnarray}
+After the normalization, we have $\gamma_2^2 = 0.6875$, $\gamma_2^i = 0.0625, i \ne 2$. Thus, at $t = 2$, we have,
+\begin{eqnarray}
+    f_2(x) &=& \begin{cases}
+        -1, & x_2 \ge 3.5 \\
+        1, & x_2 < 3.5
+        \end{cases} \nonumber \\
+    z_2 &=& \sum_{i = 1}^{6} \gamma_2^i y^{i} f_2(x_i) = \frac{1}{6} = 0.75 \nonumber \\
+    \alpha_2 &=& \frac{1}{2}\ln\frac{1 + z_2}{1 - z_2} = 0.973 \nonumber \\
+\end{eqnarray}
+
+\subsection{}
+The final classifier is given by
+\begin{eqnarray}
+    y = sign(1.199 * f_1(x) + 0.973 * f_2(x)) \nonumber \\
+    where \quad f_1(x) &=& \begin{cases}
+        1, & x_1 \ge 4.5 \\
+        -1, & x_1 < 4.5
+        \end{cases} \nonumber \\
+    f_2(x) &=& \begin{cases}
+        -1, & x_2 \ge 3.5 \\
+        1, & x_2 < 3.5
+        \end{cases} \nonumber
+\end{eqnarray}
 \newpage
 
 \section{Learning Theory: 14pts}
+\subsection{}
+From Hoeffding's inequality, with probability at least $0.95$, we have
+\begin{eqnarray}
+    \epsilon_{\mu}(h) &\le& \epsilon_{\mathcal{D}}(h) + \sqrt{\frac{\log(\frac{2}{\delta})}{2n}} \nonumber \\
+\end{eqnarray}
+Since, we want to have $\epsilon_{\mu}(h) - \epsilon_{\mathcal{D}}(h) \le 0.05$, we have,
+\begin{eqnarray}
+    \sqrt{\frac{\log(\frac{2}{\delta})}{2n}} &\le& 0.05 \nonumber \\
+    n &\ge& 200 \log 40 \nonumber
+\end{eqnarray}
+
+\subsection{}
+\subsubsection{}
+$\mathsf{V} \mathsf{C} (\mathcal{F} _{\text{affine}}) = 3$.
+We can image this function as a line in 2D space, and the objective is to seperate the points into two classes. Points above the line are labeled as 1, and points below the line are labeled as -1. For 3 points not in the same line, we can always find a line to seperate them. 
+On the other hand, we know that for 4 points in a XOR pattern, we cannot do that. So the VC dimension of $\mathcal{F} _{affine}$ is 3.
+
+\subsubsection{}
+$\mathsf{V} \mathsf{C} (\mathcal{F}^{k} _{\text{affine}}) = k+1$.
+Rewrite the definition of $\mathcal{F}^{k} _{\text{affine}}$ as $\mathcal{F}^{k} _{\text{affine}} = \{ \mathbb{I} \{ \left [ x^T \quad 1 \right ]  \begin{bmatrix} \mathbf{\omega}\\\omega_0 \end{bmatrix}  \}\}$.
+The first matrix is of $\mathbb{R} ^{n\times( k+1 ) }$, the second matrix is of $\mathbb{R} ^{(k+1)\times 1}$. 
+
+\subsubsection{}
+
 
 \newpage
 
