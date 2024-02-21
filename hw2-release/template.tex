@@ -53,6 +53,13 @@ subject to
     \alpha_i + \beta_i &=& C \nonumber \\
     \sum_{i=1}^n \alpha_iy_i &=& 0 \nonumber
 \end{eqnarray}
+
+After eliminating $\beta_i$, we have the following constraints,
+\begin{eqnarray}
+    0 \leq \alpha_i &\leq& C \nonumber \\
+    \sum_{i=1}^n \alpha_iy_i &=& 0 \nonumber
+\end{eqnarray}
+
 \newpage
 
 \section{SVM, RBF Kernel and Nearest Neighbor: 6pts}
@@ -90,96 +97,136 @@ From the definition of entropy, we have
 \end{eqnarray}
 
 \subsection{}
-First consider split on $x_1$. Split points between two adjacent points can be considered as same, so we have possible split points at $\tau = 1.5, 2.5, 3.5, 4.5, 5.5$. 
+First consider split on $x_1$. Split points between two adjacent points can be considered as same, so we have possible split points at $\tau = 2, 3, 4, 5, 6$. 
 For each $\tau$, we split the dataset following the rule $y = 1$ if $x \ge \tau$, otherwise $y = -1$.
 \begin{eqnarray}
-    I(D|f_{\tau=1.5}) = 0.809, I(D|f_{\tau=2.5}) = 1, I(D|f_{\tau=3.5}) = 0.918, I(D|f_{\tau=4.5}) = 0.541, I(D|f_{\tau=5.5}) = 0.809 \nonumber
+    I(D|f_{\tau=2}) = 0.809, I(D|f_{\tau=3}) = 1, I(D|f_{\tau=4}) = 0.918, I(D|f_{\tau=5}) = 0.541, I(D|f_{\tau=6}) = 0.809 \nonumber
 \end{eqnarray}
-So the best split for $x_1$ is at $\tau = 4.5$.
+So the best split for $x_1$ is at $\tau = 5$.
 
-Similarly, we have possible split points at $\tau = 1.5, 2.5, 3.5, 4.5, 5.5$ for $x_2$, following the rule $y = -1$ if $x \ge \tau$, otherwise $y = 1$.
+Similarly, we have possible split points at $\tau = 2, 3, 4, 5, 6$ for $x_2$, following the rule $y = -1$ if $x \ge \tau$, otherwise $y = 1$.
 \begin{eqnarray}
-    I(D|f_{\tau=1.5}) = 0.809, I(D|f_{\tau=2.5}) = 1, I(D|f_{\tau=3.5}) = 0.918, I(D|f_{\tau=4.5}) = 1, I(D|f_{\tau=5.5}) = 0.809 \nonumber
+    I(D|f_{\tau=2}) = 0.809, I(D|f_{\tau=3}) = 1, I(D|f_{\tau=4}) = 0.918, I(D|f_{\tau=5}) = 1, I(D|f_{\tau=6}) = 0.809 \nonumber
 \end{eqnarray}
-So the best split for $x_2$ is at $\tau = 1.5$ and $\tau = 5.5$. Since the information gain split on $x_1$ is higher, we choose to split on $x_1$ at $\tau = 4.5$.
+So the best split for $x_2$ is at $\tau = 2$ and $\tau = 6$. Since the information gain split on $x_1$ is higher, we choose to split on $x_1$ at $\tau = 5$.
 \begin{eqnarray}
     IG(D, f) = I(D) - I(D|f) = 0.459 \nonumber
 \end{eqnarray}
 
 \subsection{}
-After split on $\tau = 4.5$, from the figure we can know that only split on $x_2$ at $\tau = 1.5$ can further reduce the entropy. So the best split for the second level is at $\tau = 1.5$, following the rule $y = -1$ if $x \ge \tau$, otherwise $y = 1$.
+After split on $\tau = 5$, from the figure we can know that only split on $x_2$ at $\tau = 2$ can further reduce the entropy. So the best split for the second level is at $\tau = 2$, following the rule $y = -1$ if $x \ge \tau$, otherwise $y = 1$.
 \begin{eqnarray}
-    I(D|f_{x_1=4.5, x_2=1.5}) &=& \frac{1}{6}0 + \frac{1}{2}0 + \frac{1}{3}0 = 0 \nonumber\\
-    IG(D, f) &=& I(D) - I(D|f) = 1 - 0 = 1 \nonumber \\
+    I(D|f_{x_1=5, x_2=2}) &=& \frac{1}{6}0 + \frac{1}{2}0 + \frac{1}{3}0 = 0 \nonumber\\
+    IG(D|f_{x_1=5}, f_{x_2=2}) &=& I(D|f_{x_1=5}) - I(D|f_{x_1=5, x_2=2}) = 0.541 \nonumber 
 \end{eqnarray}
+So, after the second split, the further information gain is 0.541. The total information gain is $ 0.459 + 0.541 = 1$.
 
 \subsection{}
-Follow the adaboost routine, at $t = 1$, we have,
+Follow the Adaboost routine, at $t = 1$, we have,
 \begin{eqnarray}
     \gamma_1^{i} &=& \frac{1}{6} \nonumber \\
     f_1(x) &=& \begin{cases}
-        1, & x_1 \ge 4.5 \\
-        -1, & x_1 < 4.5
+        1, & x_1 \ge 5 \\
+        -1, & x_1 < 5
         \end{cases} \nonumber \\
-    z_1 &=& \sum_{i = 1}^{6} \frac{1}{6} y^{i} f_1(x_i) = \frac{5}{6} \nonumber \\
-    \alpha_1 &=& \frac{1}{2}\ln\frac{1 + z_1}{1 - z_1} = \frac{1}{2}\ln 11 \nonumber \\
-    \gamma_2^2 &=& \frac{1}{6 Z _1}e^{-\frac{1}{2}\ln 11 -1} \nonumber \\
-    \gamma_2^i &=& \frac{1}{6 Z _1}e^{-\frac{1}{2}\ln 11 }, i \ne 2 \nonumber \\
+    z_1 &=& \sum_{i = 1}^{6} \frac{1}{6} y^{i} f_1(x_i) = \frac{4}{6} \nonumber \\
+    \alpha_1 &=& \frac{1}{2}\ln\frac{1 + z_1}{1 - z_1} = \frac{1}{2}\ln 5 \nonumber \\
+    \gamma_2^2 &=& \frac{1}{6 Z _1}e^{-\frac{1}{2}\ln 5 (-1)} \nonumber \\
+    \gamma_2^i &=& \frac{1}{6 Z _1}e^{-\frac{1}{2}\ln 5 }, i \ne 2 \nonumber 
 \end{eqnarray}
-After the normalization, we have $\gamma_2^2 = 0.6875$, $\gamma_2^i = 0.0625, i \ne 2$. Thus, at $t = 2$, we have,
+After the normalization, we have $\gamma_2^2 = \frac{1}{2}$, $\gamma_2^i = \frac{1}{10}, i \ne 2$. Thus, at $t = 2$, we have,
 \begin{eqnarray}
     f_2(x) &=& \begin{cases}
-        -1, & x_2 \ge 3.5 \\
-        1, & x_2 < 3.5
+        -1, & x_2 \ge 4 \\
+        1, & x_2 < 4
         \end{cases} \nonumber \\
-    z_2 &=& \sum_{i = 1}^{6} \gamma_2^i y^{i} f_2(x_i) = \frac{1}{6} = 0.75 \nonumber \\
-    \alpha_2 &=& \frac{1}{2}\ln\frac{1 + z_2}{1 - z_2} = 0.973 \nonumber \\
+    z_2 &=& \sum_{i = 1}^{6} \gamma_2^i y^{i} f_2(x_i) = \frac{3}{5} \nonumber \\
+    \alpha_2 &=& \frac{1}{2}\ln\frac{1 + z_2}{1 - z_2} = 0.6931 \nonumber 
 \end{eqnarray}
 
 \subsection{}
 The final classifier is given by
 \begin{eqnarray}
-    y = sign(1.199 * f_1(x) + 0.973 * f_2(x)) \nonumber \\
+    f(x) = sign(0.8047 * f_1(x) + 0.6931 * f_2(x)) \nonumber \\
     where \quad f_1(x) &=& \begin{cases}
-        1, & x_1 \ge 4.5 \\
-        -1, & x_1 < 4.5
+        1, & x_1 \ge 5 \\
+        -1, & x_1 < 5
         \end{cases} \nonumber \\
     f_2(x) &=& \begin{cases}
-        -1, & x_2 \ge 3.5 \\
-        1, & x_2 < 3.5
+        -1, & x_2 \ge 4 \\
+        1, & x_2 < 4
         \end{cases} \nonumber
 \end{eqnarray}
+\begin{eqnarray}
+    f(x_1) &=& sign(0.8047*(-1) + 0.6931*(1)) = -1 \quad \text{correct}\nonumber \\
+    f(x_2) &=& sign(0.8047*(-1) + 0.6931*(1)) = -1 \quad \text{incorrect} \nonumber \\
+    f(x_3) &=& sign(0.8047*(-1) + 0.6931*(-1)) = -1 \quad \text{correct} \nonumber \\
+    f(x_4) &=& sign(0.8047*(-1) + 0.6931*(-1)) = -1 \quad \text{correct} \nonumber \\
+    f(x_5) &=& sign(0.8047*(1) + 0.6931*(1)) = 1 \quad \text{correct} \nonumber \\
+    f(x_6) &=& sign(0.8047*(1) + 0.6931*(-1)) = 1 \quad \text{correct} \nonumber
+\end{eqnarray}
+
 \newpage
 
 \section{Learning Theory: 14pts}
 \subsection{}
 From Hoeffding's inequality, with probability at least $0.95$, we have
 \begin{eqnarray}
-    \epsilon_{\mu}(h) &\le& \epsilon_{\mathcal{D}}(h) + \sqrt{\frac{\log(\frac{2}{\delta})}{2n}} \nonumber \\
+    \epsilon_{\mu}(h) &\le& \epsilon_{\mathcal{D}}(h) + \sqrt{\frac{\log(\frac{2}{\delta})}{2n}} \nonumber
 \end{eqnarray}
 Since, we want to have $\epsilon_{\mu}(h) - \epsilon_{\mathcal{D}}(h) \le 0.05$, we have,
 \begin{eqnarray}
     \sqrt{\frac{\log(\frac{2}{\delta})}{2n}} &\le& 0.05 \nonumber \\
-    n &\ge& 200 \log 40 \nonumber
+    n &\ge& 200 \log 40 \nonumber \\
+    n &\ge& 738 \nonumber
 \end{eqnarray}
 
 \subsection{}
 \subsubsection{}
 $\mathsf{V} \mathsf{C} (\mathcal{F} _{\text{affine}}) = 3$.
+
 We can image this function as a line in 2D space, and the objective is to seperate the points into two classes. Points above the line are labeled as 1, and points below the line are labeled as -1. For 3 points not in the same line, we can always find a line to seperate them. 
-On the other hand, we know that for 4 points in a XOR pattern, we cannot do that. So the VC dimension of $\mathcal{F} _{affine}$ is 3.
+
+On the other hand, for any dataset containing 4 points, if there are 3 points in a line, they cannot be seperated. Otherwise, there are at least 4 points forming in a XOR pattern so that we cannot seperate as well. So the VC dimension of $\mathcal{F} _{affine}$ is 3.
 
 \subsubsection{}
 $\mathsf{V} \mathsf{C} (\mathcal{F}^{k} _{\text{affine}}) = k+1$.
+
 Rewrite the definition of $\mathcal{F}^{k} _{\text{affine}}$ as $\mathcal{F}^{k} _{\text{affine}} = \{ \mathbb{I} \{ \left [ x^T \quad 1 \right ]  \begin{bmatrix} \mathbf{\omega}\\\omega_0 \end{bmatrix}  \}\}$.
-The first matrix is of $\mathbb{R} ^{n\times( k+1 ) }$, the second matrix is of $\mathbb{R} ^{(k+1)\times 1}$. 
+The first matrix $\mathbf{X} $ is of $\mathbb{R} ^{n\times( k+1 ) }$, the second matrix $\mathbf{W} $ is of $\mathbb{R} ^{(k+1)\times 1}$. 
+For $n=k+1$, we know that the first matrix is of full rank, so we can always get a solution to the problem $\mathbf{X} \mathsf{W} = \mathbf{Y} $, where $\mathbf{Y} $ is arbitrary labels for points.
+
+On the other hand, for $n = k+2$, i.e. there are $k+2$ points in $\mathbb{R}^{k+1}$ space, thus there exists a point $x_j = \sum_{i\ne j} a_{i}x_{i}$, where not all $a_{i}$ are $0$. Assign label for $x_j$ as 1 and $sign(a_i)$ for other $y_i$s, we know that $y_{i} = sign(a_{i})$ is achieved by $sign (W^T x_{i})$. If $a_i = 0$, the label is arbitrary.
+Then we have $sign(w^Tx_{j}) = sign(\sum_{i \ne j}a_{i}w^Tx_{i})$. The signs of $w^Tx_{i}$ is the same as $a_{i}$, thus we get $sign(w^Tx_{j}) = y_{j} > 0$, which is Contradictory to our assumption. So we know that the VC dimension of $\mathcal{F}^{k} _{\text{affine}}$ is $k+1$.
 
 \subsubsection{}
+$\mathsf{V} \mathsf{C} (\mathcal{F}^{k} _{\text{cos}}) = infinite$. 
 
-
-\newpage
 
 \section{Coding: SVM, 4pts}
 % Include your plot for Q5.3.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{imgs/poly_2.png}
+    \caption{Results of Polynomial kernel degree of 2}
+    \end{figure}
 
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.5\textwidth]{imgs/rbf_1.png}
+        \caption{Results of RBF kernel with $\gamma = 1$}
+    \end{figure}
+    
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.5\textwidth]{imgs/rbf_2.png}
+        \caption{Results of RBF kernel with $\gamma = 2$}
+    \end{figure}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.5\textwidth]{imgs/rbf_4.png}
+        \caption{Results of RBF kernel with $\gamma = 4$}
+    \end{figure}
+    
 \end{document}

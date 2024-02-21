@@ -83,10 +83,10 @@ def svm_predictor(alpha, x_train, y_train, x_test,
 
 if __name__ == '__main__':
     x, y = hw2_utils.xor_data()
-    alpha = svm_solver(x, y, lr=0.01, num_iters=1000, kernel=hw2_utils.rbf(sigma=4))
+    alpha = svm_solver(x, y, lr=0.1, num_iters=10000, kernel=hw2_utils.poly(degree=2))
     # print(alpha)
     # print(svm_predictor(alpha, x, y, x))
 
-    hw2_utils.svm_contour(lambda x_test: svm_predictor(alpha, x, y, x_test, kernel=hw2_utils.rbf(sigma=4)))
+    hw2_utils.svm_contour(lambda x_test: svm_predictor(alpha, x, y, x_test, kernel=hw2_utils.poly(degree=2)))
     # print('The accuracy of the SVM is: ', torch.mean((svm_predictor(alpha, x, y, x) == y).float()).item())
     # plt.show()
