@@ -17,6 +17,9 @@ class SingleLayer(nn.Module):
         super().__init__()
         # TODO: create your single linear layer 
         # with the provided input features, output features, and bias
+        self.linear = nn.Linear(in_features, out_features, bias=bias)
+        self.is_first = is_first
+        self.in_features = torch.tensor(in_features)
 
         # self.torch_activation will contain the appropriate activation function that you should use
         if activation is None:
@@ -36,11 +39,17 @@ class SingleLayer(nn.Module):
             #     UNIFORM(-1/input_features, 1/input_features)
             # - Every other layer params should be initialized in: 
             #     UNIFORM(-\sqrt{6/input_features}/omega, \sqrt{6/input_features}/omega)
-            pass
+            
+            if self.is_first:
+                self.linear.weight.uniform_(-1/self.in_features, 1/self.in_features)
+            else:
+                self.linear.weight.uniform_(-torch.sqrt(6 / self.in_features) / self.omega, 
+                                            torch.sqrt(6 / self.in_features) / self.omega)
 
     def forward(self, input):
         # TODO: pass the input through your linear layer, multiply by omega, then apply activation
-        pass
+        output = self.linear(input) * self.omega
+        return self.torch_activation(output)
 
 # We've implemented the model for you - you need to implement SingleLayer above
 # We use 7 hidden_layer and 32 hidden_features in Siren 
@@ -75,13 +84,16 @@ class MyDataset(Dataset):
         self.coords = get_coords(sidelength)
         # TODO: we recommend printing the shapes of this data (coords and img) 
         #       to get a feel for what you're working with
+        print("shape:", self.coords.shape, self.cameraman_img.shape) # shape: torch.Size([65536, 2]) torch.Size([65536, 1])
+
 
     def __len__(self):
         return len(self.coords)
 
     def __getitem__(self, idx):
         # TODO: return the model input (coords) and output (pixel) corresponding to idx
-        raise NotImplementedError
+        # raise NotImplementedError
+        return self.coords[idx], self.cameraman_img[idx]
     
 def train(total_epochs, batch_size, activation, hidden_size=32, hidden_layer=7):
     # TODO(1): finish the implementation of the MyDataset class
@@ -93,7 +105,7 @@ def train(total_epochs, batch_size, activation, hidden_size=32, hidden_layer=7):
                         hidden_features=hidden_size, hidden_layers=hidden_layer, activation=activation)
     
     # TODO(3): set the learning rate for your optimizer
-    learning_rate=1.0 # 1.0 is usually too large, a common setting is 10^{-k} for k=2,3, or 4
+    learning_rate=0.0001 # 1.0 is usually too large, a common setting is 10^{-k} for k=2, 3, or 4
     # TODO: try other optimizers such as torch.optim.SGD
     optim = torch.optim.Adam(lr=learning_rate, params=siren_model.parameters())
     
@@ -103,10 +115,10 @@ def train(total_epochs, batch_size, activation, hidden_size=32, hidden_layer=7):
         epoch_loss = 0
         for batch in dataloader:
             # a. TODO: pass inputs (pixel coords) through mode
-            model_output = None
+            model_output = siren_model(batch[0])
             # b. TODO: compute loss (mean squared error - L2) between:
             #   model outputs (predicted pixel values) and labels (true pixels values)
-            loss = None
+            loss = ((model_output - batch[1])**2).mean()
 
             # loop should end with...
             optim.zero_grad()
