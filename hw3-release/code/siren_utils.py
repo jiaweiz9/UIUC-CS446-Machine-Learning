@@ -12,6 +12,12 @@ def get_coords(sidelength, dim=2):
     mgrid = mgrid.reshape(-1, dim)
     return mgrid
 
+def get_coords_no_norm(sidelength, dim=2):
+    tensors = tuple(dim * [torch.range(0, sidelength - 1)])
+    mgrid = torch.stack(torch.meshgrid(*tensors, indexing="ij"), dim = -1)
+    mgrid = mgrid.reshape(-1, dim)
+    return mgrid
+
 # load cameraman image from skimage, resize and normalize
 def get_cameraman_tensor(sidelength):
     img = Image.fromarray(skimage.data.camera())
@@ -39,7 +45,8 @@ def divergence(y, x):
     return div
 
 def model_results(siren_model):
-    coords = get_coords(sidelength=256) # model input
+    # coords = get_coords(sidelength=256) # model input
+    coords = get_coords_no_norm(sidelength=256)
     # allows to take derivative w.r.t. input
     coords = coords.clone().detach().requires_grad_(True)
     model_output = siren_model(coords)
@@ -49,3 +56,7 @@ def model_results(siren_model):
     return (model_output.cpu().view(256,256).detach().numpy(), 
             img_grad.norm(dim=-1).cpu().view(256,256).detach().numpy(),
             img_laplacian.cpu().view(256,256).detach().numpy())
+
+if __name__ == "__main__":
+    print(get_coords(sidelength=256))
+    print(get_coords_no_norm(sidelength=256))
