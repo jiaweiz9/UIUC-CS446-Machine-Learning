@@ -54,12 +54,19 @@ No. ReLU makes negative part of the innner linear function to 0, and positive pa
 No. Suppose $x_{0}$ satisfies $|w_1^T\sigma(w_0^T x_0 + b) - x_0^2| < \epsilon$, as $x_{0}$ goes to infinity, the $x_0^2$ increases at a second order rate, while the first term increases at a maximum first order rate. So, the difference will go to infinity.
 
 \subsection{}
-Yes. For any small $\epsilon$, we can find a large enough amount of line segments to approximate the quadratic function. 
+Yes. For any small $\epsilon$, we can always find a large enough amount of line segments to approximate the range-limited quadratic function. 
 
 The construction routine is as follows.
 
 Suppose the line segments are $l_0, l_1, \dots, l_n$. The objective $w_1^T \sigma(w_0 x + b_0)$ can be viewed as a linear combination of $\sigma(w_0^0 x + b_0^0), \sigma(w_0^1 x + b_0^1), \dots, \sigma(w_0^m x + b_0^m)$.
-We can choose $w_0^0 x + b$ to be the line containing the segment $l_0$. Then, for every $i \ge 1$ choose $w_0^i$ equal to the differnce between the slope rate of segment $i$ and segment $i+1$, $b_0^i$ equal to the corresponding intersection when the line $w_0^i x + b_0^i = 0$. $w_1 = (1, 1, \dots, 1)$
+
+Step 1, we can choose $w_0^0 x + b$ to be the line containing the segment $l_0$. And for every $i \ge 1$ choose $w_0^i$ equal to the differnce between the slope rate of segment $i+1$ and segment $i$.
+
+Step 2, for every resulting $w_0^i$, if $w_0^i$ is smaller than 0, we set $w_0^i = -w_0^i$.
+
+Step 3, after getting all $w_0^i$, $b_0^i$ is equal to the corresponding intersection when the line $w_0^i x + b_0^i = 0$. 
+
+The $w_1 = (-1, -1, \dots, 1, 1)$, where $-1$ is corresponding to those $w_0^i$ that changed signs at step 2.
 \newpage
 
 \section{Backpropagation through time (BPTT)}
@@ -139,6 +146,7 @@ If we use bias in Conv2D, every number of the output in the same channel will be
 \section{Coding: Image overfitting}
 \setcounter{subsection}{4}
 \subsection{}
+I found the experiments are hard to converge (especially for ReLU and tanh), so I added learning rate decay to all training processes. 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{imgs/siren_relu_e5000_b1024_lr10-3_decay.png}
