@@ -17,7 +17,7 @@ class Block(nn.Module):
         conv2 = nn.Conv2d(num_channels, num_channels, kernel_size=3, padding=1, bias=False)
         bn2 = nn.BatchNorm2d(num_channels)       
 
-        self.fx = nn.Sequential(conv1, bn1, nn.ReLU(), conv2, bn2) 
+        self.fx = nn.Sequential(conv1, bn1, nn.ReLU(), conv2, bn2)
 
     def forward(self, x):
         """
@@ -26,7 +26,8 @@ class Block(nn.Module):
 
         The output should have the same shape as input.
         """
-        return self.fx(x) + x
+        final_active = nn.ReLU()
+        return final_active(self.fx(x) + x)
 
 
 class ResNet(nn.Module):

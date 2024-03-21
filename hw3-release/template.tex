@@ -34,21 +34,21 @@ Please refer to \url{https://courses.grainger.illinois.edu/cs446/sp2024/homework
 
 \subsection{}
 \begin{eqnarray}
-    \omega_{0} = (1, -1)^T  \omega_{1} = (1, -1)^T b = (1, -1)^T \nonumber
+    \omega_{0} = (m, -m)^T  \omega_{1} = (1, -1)^T b = (b, -b)^T \nonumber
 \end{eqnarray}
 
 \subsection{}
 \begin{eqnarray}
-    \omega_{0} = 0  \omega_{1} = 2b  \nonumber
+    \omega_{0} = 0,  \omega_{1} = 2b  \nonumber
 \end{eqnarray}
 
 \subsection{}
 \begin{eqnarray}
-    \omega_{0} = (3, -6, 3)^T b = (6, 0, -6)^T \omega_{1} = (1, -1, 1)^T \nonumber
+    \omega_{0} = (3, 6, 3)^T b = (6, 0, -6)^T \omega_{1} = (1, -1, 1)^T \nonumber
 \end{eqnarray}
 
 \subsection{}
-No. ReLu makes negative part of the innner linear function to 0, and positive parts to remain the same. So, after applying the outter linear function, the output will also be a combination of a linear function and a 0 part.
+No. ReLU makes negative part of the innner linear function to 0, and positive parts to remain the same. So, after applying the outter linear function, the output will also be a combination of a linear function and 0s.
 
 \subsection{}
 No. Suppose $x_{0}$ satisfies $|w_1^T\sigma(w_0^T x_0 + b) - x_0^2| < \epsilon$, as $x_{0}$ goes to infinity, the $x_0^2$ increases at a second order rate, while the first term increases at a maximum first order rate. So, the difference will go to infinity.
@@ -81,11 +81,11 @@ We can choose $w_0^0 x + b$ to be the line containing the segment $l_0$. Then, f
 
 \subsection{}
 \begin{eqnarray}
-    \frac{\partial h_3}{\omega} &=& y_3 + \omega \frac{\partial y_3}{\omega} \nonumber \\
-    &=& y_3 + \omega \frac{\partial h_2}{\omega} \nonumber \\
-    &=& y_3 + \omega (y_2 + \omega \frac{\partial y_2}{\omega}) \nonumber \\
-    &=& y_3 + \omega y_2 + \omega^2 \frac{\partial h_1}{\omega} \nonumber \\
-    &=& y_3 + \omega y_2 + \omega^2 (y_1 + \omega \frac{\partial y_1}{\omega}) \nonumber \\
+    \frac{\partial h_3}{\partial \omega} &=& y_3 + \omega \frac{\partial y_3}{\partial\omega} \nonumber \\
+    &=& y_3 + \omega \frac{\partial h_2}{\partial \omega} \nonumber \\
+    &=& y_3 + \omega (y_2 + \omega \frac{\partial y_2}{\partial \omega}) \nonumber \\
+    &=& y_3 + \omega y_2 + \omega^2 \frac{\partial h_1}{\partial \omega} \nonumber \\
+    &=& y_3 + \omega y_2 + \omega^2 (y_1 + \omega \frac{\partial y_1}{\partial \omega}) \nonumber \\
     &=& y_3 + \omega y_2 + \omega^2 y_1 \nonumber
 \end{eqnarray}
 
@@ -139,7 +139,26 @@ If we use bias in Conv2D, every number of the output in the same channel will be
 \section{Coding: Image overfitting}
 \setcounter{subsection}{4}
 \subsection{}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/siren_relu_e5000_b1024_lr10-3_decay.png}
+    \caption{Activation: ReLU, Epochs: 5000, Batch Size: 1024, Learning Rate: $10^{-3}$, with Learning Rate Decay}
+    \label{fig:5-5-relu}
+\end{figure}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/siren_tanh_e5000_b1024_lr10-3_decay.png}
+    \caption{Activation: tanh, Epochs: 5000, Batch Size: 1024, Learning Rate: $10^{-3}$, with Learning Rate Decay}
+    \label{fig:5-5-tanh}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/siren_sin_e2000_b1024_lr10-4_decay.png}
+    \caption{Activation: sin, Epochs: 2000, Batch Size: 1024, Learning Rate: $10^{-4}$, with Learning Rate Decay}
+    \label{fig:5-5-sin}
+\end{figure}
 % Resnet code should be submitted on gradescope
 % Include plots and results from Q5.5 and written responses for 5.6-8
 \subsection{}
@@ -163,8 +182,20 @@ Because the activation function is ReLu, each term above is whether 0 or $w_i$. 
 We can decrease the learning rate, which is called learning rate decay.
 
 \subsection{}
-When training without initialization, the model seems to get stuck in a local minimum. The loss is indeed decreasing, but the output image are just random noise. 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/siren_sin_e500_b1024_lr10-4_decay_noinit.png}
+    \caption{Activation: sin, Epochs: 500, Batch Size: 1024, Learning Rate: $10^{-4}$, without Learning Rate Decay, without Initialization}
+    \label{fig:5-7-sin-no-init}
+\end{figure}
+As shown in \ref{fig:5-7-sin-no-init}, when training without initialization, the model seems to get stuck in a local minimum. The loss is indeed decreasing, but the output image are just random noise. 
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{imgs/siren_sin_e500_b1024_lr10-4_decay_nonorm.png}
+    \caption{Activation: sin, Epochs: 500, Batch Size: 1024, Learning Rate: $10^{-4}$, without Learning Rate Decay, without Normalization}
+    \label{fig:5-7-sin-no-norm}
+\end{figure}
 When training without normalization (input coordinates are original integer tuples), the output shows a large scale of variance. I think the reason is that the inputs are too discrete.
 
 \end{document}
