@@ -54,9 +54,9 @@ No. ReLU makes negative part of the innner linear function to 0, and positive pa
 No. Suppose $x_{0}$ satisfies $|w_1^T\sigma(w_0^T x_0 + b) - x_0^2| < \epsilon$, as $x_{0}$ goes to infinity, the $x_0^2$ increases at a second order rate, while the first term increases at a maximum first order rate. So, the difference will go to infinity.
 
 \subsection{}
-Yes. For any small $\epsilon$, we can always find a large enough amount of line segments to approximate the range-limited quadratic function. 
+Yes. From the differential element method, we konw that for any small $\epsilon$, we can always find a large enough amount of line segments to approximate the range-limited quadratic function. So the problem is how to find a suitable set of $w_0$, $w_1$ and $b$ to express the line segments.
 
-The construction routine is as follows.
+We give a high-level construction routine for $w_0$, $w_1$ and $b$ as follows.
 
 Suppose the line segments are $l_0, l_1, \dots, l_n$. The objective $w_1^T \sigma(w_0 x + b_0)$ can be viewed as a linear combination of $\sigma(w_0^0 x + b_0^0), \sigma(w_0^1 x + b_0^1), \dots, \sigma(w_0^m x + b_0^m)$.
 
