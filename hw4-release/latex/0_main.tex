@@ -91,119 +91,178 @@ Please refer to \url{https://courses.grainger.illinois.edu/cs446/sp2024/homework
 \section{PCA: 6pts}
 \begin{enumerate}
 
-\item (1pts) Recall that PCA finds a direction $w$ in which the projected data has highest variance by solving the following program:
-    \begin{equation}
-        \max_{w:||w||^2=1}w^T\Sigma w.
-        \label{equ:pca}
-    \end{equation}
-Here, $\Sigma$ is a covariance matrix. You are given a dataset of two 2-dimensional points $(1,3)$ and $(4,7)$. Draw the two data points on the 2D plane. What is the first principal component $w$ of this dataset?
+\item According to the definition of PCA, the first principal component of $w$ is the one that makes the variance of the projected data $Xw$ the largest. In this case, the direction of $w$ is the line cross both data points (see Figuere 1), i.e. $w = (\frac{3}{5} ,  \frac{4}{5})^T $.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{../img/q1-1.jpg}
+    \caption{Q 1.1}
+\end{figure}
 
-\item (3pts) Now you are given a dataset of four points $(2,0)$, $(2,2)$, $(6,0)$ and $(6,2)$. Given this dataset, derive the covariance matrix $\Sigma$ in Eq.\ref{equ:pca}. Then plot the centralized data with the first and the second principal components in one figure. \textbf{Include the plot in your written submission}.
+\item \begin{figure}[H]
+    \centering
+    \includegraphics[width=0.3\textwidth]{../img/q1-2.jpg}
+    \caption{Q 1.2}
+\end{figure}
+\begin{align}
+    \mu = \frac{1}{4} \sum x_i = (1, 4)^T \nonumber
+\end{align}
+Then, we get the centralized data (as shown in Figure 2).
+\begin{align}
+    X = \begin{bmatrix}
+        -2 & -2 & 2 & 2 \\
+        -1 & 1 & -1 & 1
+    \end{bmatrix} \nonumber
+\end{align}
 
-\item (2pts) What is the optimal $w$ and the optimal value of the program in Eq.\ref{equ:pca}  given \[ \Sigma= \left[ \begin{array}{cccc}
-	12 & 0 & 0 & 0\\
-	0 & 6 & 0 & 0\\
-	0 & 0 & 20 & 0\\
-	0 & 0 & 0 & 10\\
-	\end{array} \right].\] Give your justification.
+The covariance matrix is, 
+\begin{align}
+    \Sigma = \frac{1}{3} X X^T = \begin{bmatrix}
+        \frac{16}{3} & 0  \\
+        0 & \frac{4}{3}
+    \end{bmatrix} \nonumber
+\end{align}
 
+We know that the first and second principal components are corresponding to the first and second largest eigenvalues of $\Sigma$. 
+
+Because $\Sigma$ is diagonal, the largest eigenvalue is $\frac{16}{3}$ and the corresponding eigenvector is $(1, 0)^T$. 
+
+The second largest eigenvalue is $\frac{4}{3}$ and the corresponding eigenvector is $(0, 1)^T$.
+
+Therefore, the first and second principal components are $(1, 0)^T$ and $(0, 1)^T$ respectively.
+
+\item $w^T \Sigma w$ is in a quadratic form. Because $\Sigma$ is diagonal, the quadratic form only contains squared terms.
+Under the constraint $w^T w = 1$, we have,
+\begin{eqnarray}
+    w^T \Sigma w &=& 12 w_1^2 + 6 w_2^2 + 20 w_3^2 + 10 w_4^2 \nonumber\\
+                &\le& 20 \nonumber\\
+\end{eqnarray}
+$w^T \Sigma w = 20$ only when $w = [0, 0, 1, 0]^T$. Therefore, the optimal $w$ is $[0, 0, 1, 0]^T$.
 
 \end{enumerate}
     
 \section{Basics in Information Theory: 7pts}
-Let $X$ be a discrete variable, and $P$, $Q$ be two probability distributions over $X$. Define a new random variable $X'$ as follows:
-\begin{equation*}
-    X' = \begin{cases}
-        X \sim P & \text{if } B=1, \\
-        X \sim Q & \text{if } B=0,
-    \end{cases}
-\end{equation*}
-where $B \in \{0,1\}$ is an independent and Bernoulli distribution over $\{0,1\}$ with the parameter $\lambda$, such that $\Pr(B=1) = \lambda = 1-\Pr(B=0)$.
 
 \begin{enumerate}
-    \item (2pts) Derive and represent the mixture distribution $\Pr(X' = x)$ in terms of $P(x)$ and $Q(x)$.
+    \item \begin{eqnarray}
+        Pr(X' = x) &=& Pr(X' = x|B = 1)Pr(B = 1) + Pr(X' = x|B = 0) Pr(B = 0) \nonumber \\ 
+        &=& Pr(X = x) \lambda + Pr(X = x) (1-\lambda)\nonumber\\
+    \end{eqnarray}
 
-    \item (5pts) Show that $I(X';B)=D_{\lambda}(P\|Q)$, where $D_{\lambda}(P\|Q)$ is the $\lambda$-divergence between $P$ and $Q$, i.e., $D_{\lambda}(P\|Q) = \lambda D_{\text{KL}}(P\| \lambda P + (1-\lambda) Q) + (1-\lambda) D_{\text{KL}}(Q \| \lambda P + (1-\lambda) Q)$. Note that by setting $\lambda = 0.5$, the $\lambda$-divergence gives the Jensen-Shannon divergence.
-
+    \item \begin{eqnarray}
+        D_{\lambda}(P || Q) &=& \lambda D_{KL}(P || \lambda P + (1- \lambda) Q) + (1-\lambda) D_{KL}(Q || \lambda P + (1- \lambda) Q) \nonumber \\ 
+        &=& \lambda \int p(x) \log \frac{p(x)}{\lambda p(x) + (1-\lambda) q(x)}\,dx + (1-\lambda) \int q(x) \log \frac{q(x)}{\lambda p(x) + (1-\lambda) q(x)}\,dx \nonumber\\ 
+        &=& \lambda \int p(x) (\log p(x) - \log (\lambda p(x) + (1-\lambda)q(x))) \,dx \nonumber\\ 
+        && + (1-\lambda) \int q(x) (\log q(x) - \log (\lambda p(x) + (1-\lambda)q(x))) \,dx \nonumber\\
+        &=& -\int (\lambda p(x) + (1-\lambda)q(x)) \log (\lambda p(x) +  (1-\lambda)q(x)) \,dx  \nonumber\\
+        && + \lambda \int p(x) \log p(x) \,dx + (1-\lambda) \int q(x) \log q(x) \,dx \nonumber\\ 
+        &=& H(X') - \lambda H(X'|B = 1) - (1-\lambda) H(X' | B = 0) \nonumber\\
+        &=& H(X') - H(X' | B)\nonumber\\ \nonumber
+        &=& I(X'; B)
+    \end{eqnarray}
 \end{enumerate}
 
 \section{k-Means with Soft Assignments: 10pts}
-Consider the following exemplar-based, hard-assignment form as the objective of k-Means for $K$ clusters and $n$ data points $x^{(i)}$ for $i = 1, ..., n$:
-\begin{align}
-    \label{kmeans}
-    \underset{\mu_1, ..., \mu_K}{\min}\sum_{i=1}^n \underset{k}{\min} \|x^{(i)}-\mu_k\|_2^2 = \underset{\mu_1, ..., \mu_K}{\min}\underset{\substack{A \in \{0,1\}^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min}\sum_{i=1}^n\sum_{k=1}^K A_{ik}\|x^{(i)} - \mu_k\|^2_2, 
-\end{align}
-where $\mu_k$ denotes the center for the $k$-th cluster, the matrix $A \in \{0,1\}^{n\times K}$ indicates the hard assignment of each data point to the clusters, and $A\cdot \mathbf{1}_K = \mathbf{1}_n$, which tells us that each row of $A$ has one $1$ with all remaining elements as $0$, i,e, $\sum_{k=1}^K A_{ik} = 1, \forall i$.
-
-We extend this setting to soft assignment by designing the matrix $A \in [0,1]^{n\times k}$, and the objective becomes:
-\begin{align}
-    \label{soft}
-    \underset{\mu_1, ..., \mu_K}{\min}\underset{\substack{A \in [0,1]^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min}\sum_{i=1}^n\sum_{k=1}^K A_{ik}\|x^{(i)} - \mu_k\|^2_2. 
-\end{align}
 
 \begin{enumerate}
-    \item (3pts) Show that the following holds:
+    \item 
     \begin{align}
         \underset{\mu_1, ..., \mu_K}{\min}\underset{\substack{A \in [0,1]^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min}\sum_{i=1}^n\sum_{k=1}^K A_{ik}\|x^{(i)} - \mu_k\|^2_2 \leq \underset{\mu_1, ..., \mu_K}{\min}\underset{\substack{A \in \{0,1\}^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min}\sum_{i=1}^n\sum_{k=1}^K A_{ik}\|x^{(i)} - \mu_k\|^2_2\notag
-    \end{align}
-    
-    \textbf{Hint:} Note that $\{0,1\}^{n\times K}$ can be seen as a subset of $[0,1]^{n\times K}$.
+    \end{align} 
+    Because the right side is minimizing over a subset of feasible $A$ of right side. Therefore, for every optimal $A*$ on the right side, we can always find the same $A*$ on the left side. Therefore, the left side is less than or equal to the right side.
 
-    \item (5pts) Show that the following also holds:
+    \item 
     \begin{align}
         \underset{\mu_1, ..., \mu_K}{\min}\underset{\substack{A \in [0,1]^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min}\sum_{i=1}^n\sum_{k=1}^K A_{ik}\|x^{(i)} - \mu_k\|^2_2 \geq \underset{\mu_1, ..., \mu_K}{\min}\underset{\substack{A \in \{0,1\}^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min}\sum_{i=1}^n\sum_{k=1}^K A_{ik}\|x^{(i)} - \mu_k\|^2_2\notag
     \end{align}
     
-    \textbf{Hint:} You may use the fact that $\|x^{(i)} - \mu_k\|^2_2 \geq \underset{l}{\min}\|x^{(i)} - \mu_l\|^2_2$, for any $i$ and $k$.
+    Suppose $mu_{l^*}$ is the solution of $mu_l$ to $\|x^{(i)} - \mu_k\|^2_2 \geq \underset{l}{\min}\|x^{(i)} - \mu_l\|^2_2$. Then for any $A \in [0,1]^{n\times K}$, we have,
+    \begin{eqnarray}
+        \sum_{k=1}^K A_{ik}||x^{(i)} - \mu_k||^2_2 &\geq& \sum_{k=1}^K A_{ik}||x^{(i)} - \mu_{l^*}||^2_2 \nonumber\\
+        &=& (\sum_{k=1}^K A_{ik})||x^{(i)} - \mu_{l^*}||^2_2 \nonumber\\
+        &=& ||x^{(i)} - \mu_{l^*}||^2_2 \nonumber \\
+        &=& \underset{\substack{A \in \{0,1\}^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min} \sum_{k=1}^K A_{ik} ||x^{(i)} - \mu_{k}||^2_2 \nonumber
+    \end{eqnarray}
+    Thus, for the optimal $A$ that makes the left side minimum, the above inequality still holds, i.e.,
+    \begin{align}
+        \underset{\substack{A \in [0,1]^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min} \sum_{k=1}^K A_{ik} ||x^{(i)} - \mu_{k}||^2_2 \geq \underset{\substack{A \in \{0,1\}^{n\times K} \\ A\cdot\mathbf{1}_K= \mathbf{1}_n}}{\min} \sum_{k=1}^K A_{ik} ||x^{(i)} - \mu_{k}||^2_2 \nonumber
+    \end{align} Thus, the original inequality also holds.
 
-    \item (2pts) Show that the soft assignment problem introduced in this problem (Eq. \ref{soft}) corresponds to a globally optimal hard assignment.
+    \item From the above two question, we know that the left side and the right side are equal. In other words, the optimal solution to soft assignment problem is equal to the optimal solution to hard assignment problem.
     
 \end{enumerate}
 
 
 \section{Bernoulli Mixture Model: 18pts}
-Extended from the Gaussian mixture model introduced in the lecture, we explore the Bernoulli mixture model in this problem. We represent the dataset as $X \in \{0,1\}^{n\times d}$ and each data instance is a set of $d$ independent binary random variables $x^{(i)} = \{x^{(i)}_1, x^{(i)}_2, ..., x^{(i)}_d\}$ and the probability that $x^{(i)}$ is generated from the $k$-th Bernoulli distributions is calculated as:
-\begin{align}
-    \Pr(x^{(i)}|\mu_k) = \prod_{j=1}^d \mu_k^{x^{(i)}_j}(1-\mu_k)^{\left(1-x^{(i)}_j\right)} ,\notag
-\end{align}
-where $\mu_k$ is the mean of the $k$-th Bernoulli distribution.
-
-We consider $K$ mixed Bernoulli distributions and introduce the auxiliary/latent variable $z_{ik} \in \{0,1\}$ with $\sum_{k=1}^K z_{ik} = 1 \ \forall i$ as the assignment for $x^{(i)}$ to the $k$-th Bernoulli distribution. Also, we have $\Pr(z_{ik} = 1) = \pi_k$ and $\Pr(x^{(i)}|z_{ik} = 1) = \Pr(x^{(i)}|\mu_k)$.
-
+Suppose the k-th element of $z_i$ is 1, then the likelihood is,
 \begin{enumerate}
-    \item (5pts) Derive the log-likelihood $\log \Pr(x^{(i)}, z_i| \pi, \mu)$.
+    \item \begin{eqnarray}
+        \Pr(x^{(i)}, z_i| \pi, \mu) &=& \Pr(x^{(i)}|z_ik = 1) \Pr(z_ik = 1) \nonumber\\
+        &=& \Pr(x^{(i)}|\mu_k) \pi_k \nonumber\\
+        &=& \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} \nonumber \\
+    \end{eqnarray}
 
-    \item (5pts) In the \textbf{expectation} step, derive the update step for the assignment (posterior) $z_{ik}^{\text{new}} = \Pr(z_{ik} = 1|x^{(i)})$.
+    Thus, the log-likelihood is,
+    \begin{eqnarray}
+        \log\Pr(x^{(i)}, z_i| \pi, \mu) &=&  \log \pi_k + \sum_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} \nonumber\\
+        &=& \log \pi_k + \sum_{j=1}^d x^{(i)}_j \log \mu_k + \sum_{j=1}^d (1-x^{(i)}_j) \log (1-\mu_k) \nonumber
+    \end{eqnarray}
 
-    \item (8pts) In the \textbf{maximization} step, derive the update step for the model parameter, i.e., $\mu_k^{\text{new}}$ and $\pi_k^{\text{new}}$.
+    \item \begin{eqnarray}
+        Pr(z_{ik} = 1 | x^{(i)}) &=& \frac{Pr(x^{(i)}|z_{ik} = 1) Pr(z_{ik} = 1)}{\sum_{k=1}^K Pr(x^{(i)}| z_i) Pr(z_{ik} = 1)} \nonumber\\
+        &=& \frac{\pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j}}{\sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j}} \nonumber
+    \end{eqnarray}
+    \item \begin{eqnarray}
+        \min -\log \prod_{i \in D} p(x^{i} | \mu, \pi) & = & \min -\sum_{i \in D} \log p(x^{i} | \mu, \pi) \nonumber\\
+        & = & \min -\sum_{i \in D} \log \sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} \nonumber
+    \end{eqnarray}
+    Take the derivative with respect to $\mu_k$ and $\pi_k$ , we have,
+    \begin{eqnarray}
+        \frac{d}{d \mu_k} &=& -\sum_{i \in D} \frac{( \pi_k \prod_{j=1}^{d} \mu_k ^{x_j^{(i)}} (1-\mu_k)^{(1 - x_j^{(i)})} )'}{ \sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} } \nonumber
+        \\ &=& -\sum_{i \in D} \frac{( \pi_k \mu_k ^{ \sum_{j=1}^{d} x_j^{(i)} } (1-\mu_k)^{ \sum_{j=1}^{d} (1 - x_j^{(i)})} )'}{ \sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} } \nonumber
+        \\ &=& -\sum_{i \in D} \frac{}{ \sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} } \nonumber
+        \\ &=& -\sum_{i \in D} \frac{ \pi_k (\sum_{j=1}^{d} x_j^{(i)}) \mu_k ^{ (\sum_{j=1}^{d} x_j^{(i)}) -1 } (1-\mu_k)^{ \sum_{j=1}^{d} (1 - x_j^{(i)})}}{ \sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} } \nonumber
+        \\ & & -\sum_{i \in D} \frac{ \pi_k \mu_k ^{ \sum_{j=1}^{d} x_j^{(i)} }(\sum_{j=1}^{d} (1 - x_j^{(i)})) (1-\mu_k)^{ \sum_{j=1}^{d} (1 - x_j^{(i)})-1}}{ \sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} } \nonumber
+        \\ &=& -\sum_{i \in D} \frac{\pi_k \mu_k ^{ (\sum_{j=1}^{d} x_j^{(i)}) -1 } (1-\mu_k)^{ \sum_{j=1}^{d} (1 - x_j^{(i)})-1} }{\sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} }((1-\mu_k)\sum_{j=1}^{d} x^{(i)}_j + \mu_k \sum_{j=1}^{d} (1 - x^{(i)}_j)) \nonumber
+        \\ &=& -\sum_{i \in D} \frac{r_{ik}}{\mu_k (1 - \mu_k)} ((1-\mu_k)\sum_{j=1}^{d} x^{(i)}_j + \mu_k \sum_{j=1}^{d} (1 - x^{(i)}_j)) \nonumber
+    \end{eqnarray}
+    set the derivative to 0, we have,
+    \begin{align}
+        & -\sum_{i \in D} r_{ik} ((1-\mu_k)\sum_{j=1}^{d} x^{(i)}_j + \mu_k \sum_{j=1}^{d} (1 - x^{(i)}_j)) = 0 \nonumber\\
+        & -\sum_{i \in D} r_{ik} (\sum_{j=1}^{d} (1 -2 x_j) \mu_k + \sum_{j=1}^{d} x_j) = 0  \nonumber\\
+        & \mu_k = \frac{\sum_{i \in D} r_{ik} \sum_{j=1}^{d} x_j}{\sum_{i \in D} r_{ik} \sum _{j=1}^{d} (2 x_j - 1)} \nonumber
+    \end{align}
+
+    For $\pi_k$, we add a Lagrange multiplier to the objective function, and take derivative with respect to $\pi_k$, we have,
+    \begin{align}
+        & \sum_{i \in D} \frac{\mu_k ^{ \sum_{j=1}^{d} x_j^{(i)} } (1-\mu_k)^{ \sum_{j=1}^{d} (1 - x_j^{(i)})}}{ \sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} } + \lambda = 0 \nonumber \\
+        & \sum_{i \in D} \frac{ \pi_k \mu_k ^{ \sum_{j=1}^{d} x_j^{(i)} } (1-\mu_k)^{ \sum_{j=1}^{d} (1 - x_j^{(i)})}}{ \sum_{k=1}^K \pi_k \prod_{j=1}^d \mu_{k}^{x^{(i)}_j} (1-\mu_k)^{1-x^{(i)}_j} } + \lambda \pi_k = 0 \nonumber \\
+        \Rightarrow & \sum_{i \in D} r_{ik} + \lambda \pi_k = 0  \\ 
+        \Rightarrow & \sum_{k=1}^K \sum_{i \in D} r_{ik} + \lambda = 0 \nonumber \\
+        \Rightarrow & \lambda = -\sum_{k=1}^K \sum_{i \in D} r_{ik} = -N \nonumber \\
+    \end{align}
+
+    Take $r_{ik} = -N $ back to $\sum_{i \in D} r_{ik} + \lambda \pi_k = 0$, we get $\pi_k = \frac{\sum_{i \in D} r_{ik}}{N}$.
+
 
 \end{enumerate}
 
 \section{Variational Autoencoder (VAE): 19pts}
-  
-In this problem you will implement a Variational Autoencoder (VAE) to model points sampled from an unknown distribution.  This will be done by constructing an encoder network and a decoder network.  The encoder network $f_{\textup{enc}} : X \subset \mathbb{R}^2 \to \mathbb{R}^h \times \mathbb{R}^h$ takes as input a point $\vx$ from the input space and outputs parameters $(\vmu, \vxi)$ where $\vxi =  \log  \vsigma^2$. The decoder network $f_{\textup{dec}} : \mathbb{R}^h \to \mathbb{R}^2$ takes as input a latent vector $\vz \sim \cN(\vmu, \vsigma^2)$ and outputs an element $\hat{\vx} \in \mathbb{R}^2$ that we would hope is similar to members of the input space $X$. You will train this model by minimizing the (regularized) empirical risk
-\begin{align*}
- \hcR_{\textup{VAE}} (f) =  \frac{1}{n}\sum_{i=1}^n \ell ( \hat \vx_i , \vx_i) + \lambda \textup{KL}\left(\cN(\vmu(\vx_i), \exp(\vxi(\vx_i)/2)), \cN(0, I)\right).
-\end{align*}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/Figure_2.png}
+    \caption{Empirical risk}
+\end{figure}
 
-Particularly, we have 
-\begin{align*}
-    \textup{KL}\left(\cN(\vmu, \vSigma ), \cN(0,I)\right) = -\frac{1}{2} \left[ h + \sum_{j=1}^h\left( \log \sigma^2_j - \mu_j^2 - \sigma_j^2 \right) \right],
-\end{align*}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/Figure_1.png}
+    \caption{Training samples and its reconstruction}
+\end{figure}
 
-\begin{enumerate}
-
-\item (3pts) Use the empirical risk discussed above to implement a VAE in the class \texttt{VAE}.  Use ReLU activations between each layer, except on the last layer of the decoder use sigmoid.  Use the Adam optimizer to optimize in the \texttt{step()} function.  Make use of the PyTorch library for this. Use \texttt{torch.optim.Adam()}, there is no need to implement it yourself.  Please refer to the docstrings in \texttt{hw4.py} for more implementation details.
-\item (5pts) Implement the \texttt{fit} function using the \texttt{step()} function from the \texttt{VAE} class.  See the docstrings in \texttt{hw4.py} for more details.  
-\item (11pts) Fit a \texttt{VAE} on the data generated by \texttt{generate\_data} in \texttt{hw4\_utils.py}.  Use a learning rate $\eta = 0.01$, latent space dimension $h = 6$, KL-divergence scaling factor $\lambda = 5 \times 10^{-5}$, and train for 8000 iterations. Use least squares as the loss, that is, let $\ell(\vx,\hat\vx) = \Vert \vx - \hat\vx \Vert^2_2$.  \textbf{Include separate plots of each of the following with a legend in your written submission}:
-\begin{enumerate}
-\item Your empirical risk $\hcR_{\textup{VAE}}$ on the training data vs iteration count;
-\item The data points $(\vx)_{i=1}^n$ along with their encoded and decoded approximations $\hat \vx$;
-\item The data points $(\vx)_{i=1}^n$ along with their encoded and decoded approximations $\hat \vx$, and $n$ generated points $f_{\textup{dec}}(\vz)$ where $\vz \sim \cN ( 0, I)$.
-\end{enumerate}
-After you are done training, save your neural network to a checkpoint file using \\
-\texttt{torch.save(model.cpu().state\_dict(), "vae.pb")}. \textbf{You will submit this checkpoint file \texttt{"vae.pb"} to the autograder with your code submission.}
-
- \end{enumerate}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{../img/Figure_3.png}
+    \caption{Training, reconstructed and generated samples}
+\end{figure}
 
 \end{document}
