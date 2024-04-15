@@ -2,6 +2,7 @@ import cv2
 
 import torch
 import torch.nn as nn
+import torch.nn.functional
 import torch.optim as optim
 
 from PIL import Image
@@ -20,7 +21,12 @@ class ScoreNet(nn.Module):
         # The network has n_layers of linear layers. 
         # Latent dimensions are specified with latent_dim.
         # Between each two linear layers, we use Softplus as the activation layer.
-        self.net = nn.Identity()
+        self.net = nn.Sequential(
+            nn.Linear(3, latent_dim),
+            nn.Softplus(),
+            *[nn.Linear(latent_dim, latent_dim), nn.Softplus()] * (n_layers-2),
+            nn.Linear(latent_dim, 2)
+        )
 
     def forward(self, x, sigmas):
         """.
@@ -58,6 +64,7 @@ def compute_denoising_loss(scorenet, training_data, sigmas):
     loss averaged over all training data
     """
     B, C = training_data.shape
+    assert C == 2
 
     # TODO: Implement the denoising loss follow the steps: 
     # For each training sample x: 
@@ -67,7 +74,19 @@ def compute_denoising_loss(scorenet, training_data, sigmas):
     # 4. Compute the loss: 1/2 * lambda * ||score + ((\tilde(x) - x) / sigma^2)||^2
     # Return the loss averaged over all training samples
     # Note: use batch operations as much as possible to avoid iterations
-    pass
+    sigma = torch.tensor(np.random.choice(sigmas, B)).reshape(-1, 1)
+    # print(sigma.shape)
+    # print(training_data.shape)
+    x = training_data + sigma * torch.randn_like(training_data)
+    score = scorenet(x, sigma)
+
+    # print(score.shape)
+    lam = sigma ** 2
+    square =  (score + (x - training_data) / sigma ** 2) ** 2
+    # print(square.shape)
+    loss = 0.5 * lam * torch.sum(square, dim=1, keepdim=True)
+
+    return loss.mean()
 
 
 @torch.no_grad()
@@ -110,7 +129,21 @@ def langevin_dynamics_sample(scorenet, n_samples, sigmas, iterations=100, eps=0.
     # 5.        x_t = x_{t-1} + alpha * scorenet(x_{t-1}, sigma) + sqrt(2 * alpha) * z
     # 6.    x_0 = x_T
     # 7. Return the last x_T if return_traj=False, or return all x_t
-    pass
+    x_traj = []
+    x = torch.randn(n_samples, 2)
+    for sigma in sigmas:
+        alpha = eps * sigma ** 2 / sigmas[-1] ** 2
+        for _ in range(iterations):
+            x_traj.append(x)
+            x = x + alpha * scorenet(x, sigma) + np.sqrt(2 * alpha) * torch.randn_like(x)
+        
+    x_traj = torch.stack(x_traj, dim=1)
+    assert x_traj.shape == (n_samples, iterations * len(sigmas), 2)
+    if return_traj:
+        return x_traj
+    else:
+        return x
+
 
 
 def main():
