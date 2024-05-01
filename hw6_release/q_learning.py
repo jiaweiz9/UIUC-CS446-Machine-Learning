@@ -13,7 +13,10 @@ class QAgent:
         state_space: env.observation_space
         action_space: env.action_space
         """
-        raise NotImplementedError
+        self.table = np.ones((state_space.n, action_space.n)) * init_val
+        self.action_space = action_space
+        self.state_space = state_space
+        # raise NotImplementedError
     
     def act(self, state, epsilon, train=False, action_mask=None):
         if train:
@@ -27,18 +30,29 @@ class QAgent:
             otherwise pick the best action according to the Q table.
         NOTE: you can ignore action_mask until part 6
         """
-        raise NotImplementedError
+        # raise NotImplementedError
+        if action_mask is None:
+            action_mask = np.ones(self.action_space.n)
+        if random.random() < epsilon:
+            return self.action_space.sample(action_mask)
+        else:
+            return np.argmax(self.table[state, np.where(action_mask == 1)[0]])
     
     def _act_eval(self, state, epsilon, action_mask=None):
         """Implement action selection in evaluation (i.e., always pick best action).
         """
-        raise NotImplementedError
+        # raise NotImplementedError
+        if action_mask is None:
+            action_mask = np.ones(self.action_space.n)
+        return np.argmax(self.table[state, np.where(action_mask == 1)[0]])
     
     def update(self, state, action, reward, next_state, alpha, gamma, next_state_action_mask=None):
         """Implement Q-value table update here.
         NOTE: you may ignore the action mask until part 6
         """
-        raise NotImplementedError
+        # raise NotImplementedError
+        self.table[state, action] += alpha * (reward + gamma * np.max(self.table[next_state]) - self.table[state, action])
+
 
 # -----------------------------------------------------------------------------
 # NOTE: you do not need to modify the 3 functions below...
@@ -127,10 +141,13 @@ if __name__ == "__main__":
         "5b": {
             "alpha": 0.1,
             "gamma": 0.9,
-            "epsilon": 0.1, 
-            "init_val": 0.0,
-            "use_action_mask": False
+            "epsilon": 0.7, 
+            "init_val": -10.0,
+            "use_action_mask": True
         }
     }
     for exp_name in experiments:
         q_learning(**experiments[exp_name], save_path=f"train_rewards_{exp_name}.png")
+
+# uniform random policy success rate: 0.0427
+# uniform random policy with action mask success rate: 0.1322
