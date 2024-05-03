@@ -31,27 +31,37 @@ class QAgent:
         NOTE: you can ignore action_mask until part 6
         """
         # raise NotImplementedError
-        if action_mask is None:
-            action_mask = np.ones(self.action_space.n)
         if random.random() < epsilon:
             return self.action_space.sample(action_mask)
+        elif action_mask is not None:
+            masked_actions = np.where(action_mask == 1)[0]
+            return masked_actions[np.argmax(self.table[state, np.where(action_mask == 1)[0]])]
         else:
-            return np.argmax(self.table[state, np.where(action_mask == 1)[0]])
+            return np.argmax(self.table[state])
     
     def _act_eval(self, state, epsilon, action_mask=None):
         """Implement action selection in evaluation (i.e., always pick best action).
         """
         # raise NotImplementedError
         if action_mask is None:
-            action_mask = np.ones(self.action_space.n)
-        return np.argmax(self.table[state, np.where(action_mask == 1)[0]])
+            return np.argmax(self.table[state])
+        else:
+            masked_actions = np.where(action_mask == 1)[0]
+            return masked_actions[np.argmax(self.table[state, np.where(action_mask == 1)[0]])]
     
     def update(self, state, action, reward, next_state, alpha, gamma, next_state_action_mask=None):
         """Implement Q-value table update here.
         NOTE: you may ignore the action mask until part 6
         """
         # raise NotImplementedError
-        self.table[state, action] += alpha * (reward + gamma * np.max(self.table[next_state]) - self.table[state, action])
+        if next_state_action_mask is None:
+            max_next_action = np.argmax(self.table[next_state])
+        else:
+            # print(np.where(next_state_action_mask == 1))
+            masked_actions = np.where(next_state_action_mask == 1)[0]
+            max_next_action = masked_actions[np.argmax(self.table[next_state, np.where(next_state_action_mask == 1)[0]])]
+            # print("max_next_action", max_next_action)
+        self.table[state, action] += alpha * (reward + gamma * self.table[next_state, max_next_action] - self.table[state, action])
 
 
 # -----------------------------------------------------------------------------
@@ -141,7 +151,7 @@ if __name__ == "__main__":
         "5b": {
             "alpha": 0.1,
             "gamma": 0.9,
-            "epsilon": 0.7, 
+            "epsilon": 0.8,
             "init_val": -10.0,
             "use_action_mask": True
         }
